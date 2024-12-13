@@ -1,8 +1,9 @@
-# Use osixia/light-baseimage
+# IMAGE: jplana/openldap:1.6.0
+# Use jplana/light-baseimage
 # sources: https://github.com/osixia/docker-light-baseimage
-FROM osixia/light-baseimage:1.3.2
+FROM jplana/light-baseimage:1.4.0
 
-ARG OPENLDAP_PACKAGE_VERSION=2.4.57
+ARG OPENLDAP_PACKAGE_VERSION=2.5.13+dfsg-5
 
 ARG LDAP_OPENLDAP_GID
 ARG LDAP_OPENLDAP_UID
@@ -16,14 +17,14 @@ RUN if [ -z "${LDAP_OPENLDAP_GID}" ]; then groupadd -g 911 -r openldap; else gro
     && if [ -z "${LDAP_OPENLDAP_UID}" ]; then useradd -u 911 -r -g openldap openldap; else useradd -r -g openldap -u ${LDAP_OPENLDAP_UID} openldap; fi
 
 # Add buster-backports in preparation for downloading newer openldap components, especially sladp
-RUN echo "deb http://ftp.debian.org/debian buster-backports main" >> /etc/apt/sources.list
+#RUN echo "deb http://ftp.debian.org/debian buster-backports main" >> /etc/apt/sources.list
 
 # Install OpenLDAP, ldap-utils and ssl-tools from the (backported) baseimage and clean apt-get files
 # sources: https://github.com/osixia/docker-light-baseimage/blob/master/image/tool/add-service-available
 #          https://github.com/osixia/docker-light-baseimage/blob/master/image/service-available/:ssl-tools/download.sh
 RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && apt-get -y update \
     && /container/tool/add-service-available :ssl-tools \
-    && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get -t buster-backports install -y --no-install-recommends \
+    && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     ldap-utils=${OPENLDAP_PACKAGE_VERSION}\* \
@@ -34,13 +35,14 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
     libsasl2-modules-otp \
     libsasl2-modules-sql \
     openssl \
+    lmdb-utils \
     slapd=${OPENLDAP_PACKAGE_VERSION}\* \
     slapd-contrib=${OPENLDAP_PACKAGE_VERSION}\* \
     krb5-kdc-ldap \
-    && curl -o pqchecker.deb -SL http://www.meddeb.net/pub/pqchecker/deb/8/pqchecker_${PQCHECKER_VERSION}_amd64.deb \
-    && echo "${PQCHECKER_MD5} *pqchecker.deb" | md5sum -c - \
-    && dpkg -i pqchecker.deb \
-    && rm pqchecker.deb \
+#    && curl -o pqchecker.deb -SL http://www.meddeb.net/pub/pqchecker/deb/8/pqchecker_${PQCHECKER_VERSION}_amd64.deb \
+#    && echo "${PQCHECKER_MD5} *pqchecker.deb" | md5sum -c - \
+#    && dpkg -i pqchecker.deb \
+#    && rm pqchecker.deb \
     && update-ca-certificates \
     && apt-get remove -y --purge --auto-remove curl ca-certificates \
     && apt-get clean \
