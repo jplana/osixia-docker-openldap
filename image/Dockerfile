@@ -1,7 +1,7 @@
-# IMAGE: jplana/openldap:1.6.0
+# IMAGE: jplana/openldap:1.6.1
 # Use jplana/light-baseimage
 # sources: https://github.com/osixia/docker-light-baseimage
-FROM jplana/light-baseimage:1.4.0
+FROM jplana/light-baseimage:1.4.1
 
 ARG OPENLDAP_PACKAGE_VERSION=2.5.13+dfsg-5
 
@@ -28,6 +28,7 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
     ca-certificates \
     curl \
     ldap-utils=${OPENLDAP_PACKAGE_VERSION}\* \
+    libldap-common \
     libsasl2-modules \
     libsasl2-modules-db \
     libsasl2-modules-gssapi-mit \
